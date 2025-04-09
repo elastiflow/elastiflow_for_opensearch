@@ -1,0 +1,98 @@
+{
+  "name": "elastiflow_ecs_netsec_rare_geo_country_in",
+  "description": "Rare Country - inbound",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-ecs-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "exists": {
+            "field": "client.geo.country_name"
+          }
+        },
+        {
+          "term": {
+            "l4.session.established": "true"
+          }
+        },
+        {
+          "term": {
+            "server.as.organization": "PRIVATE"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "term": {
+            "client.as.organization": "PRIVATE"
+          }
+        },
+        {
+          "terms": {
+            "client.ip": []
+          }
+        },
+        {
+          "terms": {
+            "server.ip": []
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_client_geo_country_name",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_client_geo_country_name": {
+          "value_count": {
+            "field": "client.geo.country_name"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_client_geo_country_name": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "client.geo.country_name",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"exists\":{\"field\":\"client.geo.country_name\"}},{\"term\":{\"l4.session.established\":\"true\"}},{\"term\":{\"server.as.organization\":\"PRIVATE\"}}],\"must_not\":[{\"term\":{\"client.as.organization\":\"PRIVATE\"}},{\"terms\":{\"client.ip\":[]}},{\"terms\":{\"server.ip\":[]}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "client.geo.country_name",
+    "flow.server.l4.port.name"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_ecs_netsec_rare_geo_country_in",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 30,
+      "unit": "Minutes"
+    }
+  }
+}

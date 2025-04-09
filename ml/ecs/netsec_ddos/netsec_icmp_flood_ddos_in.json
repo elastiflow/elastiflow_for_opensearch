@@ -1,0 +1,111 @@
+{
+  "name": "elastiflow_ecs_netsec_icmp_flood_ddos_in",
+  "description": "ICMP Flood DDoS Attack - inbound",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-ecs-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "network.transport": "ICMP"
+          }
+        },
+        {
+          "terms": {
+            "event.dataset": [
+              "netflow",
+              "ipfix"
+            ]
+          }
+        },
+        {
+          "exists": {
+            "field": "source.ip"
+          }
+        },
+        {
+          "exists": {
+            "field": "destination.ip"
+          }
+        },
+        {
+          "term": {
+            "destination.as.organization": "PRIVATE"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "term": {
+            "source.as.organization": "PRIVATE"
+          }
+        },
+        {
+          "terms": {
+            "source.ip": []
+          }
+        },
+        {
+          "terms": {
+            "destination.ip": []
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 2,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_src_ip_addr",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_src_ip_addr": {
+          "value_count": {
+            "field": "source.ip"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_src_ip_addr": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "source.ip",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"term\":{\"network.transport\":\"ICMP\"}},{\"terms\":{\"event.dataset\":[\"netflow\",\"ipfix\"]}},{\"exists\":{\"field\":\"source.ip\"}},{\"exists\":{\"field\":\"destination.ip\"}},{\"term\":{\"destination.as.organization\":\"PRIVATE\"}}],\"must_not\":[{\"term\":{\"source.as.organization\":\"PRIVATE\"}},{\"terms\":{\"source.ip\":[]}},{\"terms\":{\"destination.ip\":[]}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "destination.ip",
+    "destination.domain"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_ecs_netsec_icmp_flood_ddos_in",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 5,
+      "unit": "Minutes"
+    }
+  }
+}

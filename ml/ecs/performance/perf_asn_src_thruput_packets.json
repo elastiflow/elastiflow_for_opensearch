@@ -1,0 +1,71 @@
+{
+  "name": "elastiflow_ecs_perf_asn_src_thruput_packets",
+  "description": "Unusual Source ASN Traffic Volume",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-ecs-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "exists": {
+            "field": "flow.src.as.label"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "sum_flow_packets",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "sum_flow_packets": {
+          "sum": {
+            "field": "network.packets"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "sum_flow_packets": {
+        "aggregationBy": "sum",
+        "aggregationOf": "network.packets",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"exists\":{\"field\":\"flow.src.as.label\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.src.as.label",
+    "source.ip"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_ecs_perf_asn_src_thruput_packets",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 15,
+      "unit": "Minutes"
+    }
+  }
+}

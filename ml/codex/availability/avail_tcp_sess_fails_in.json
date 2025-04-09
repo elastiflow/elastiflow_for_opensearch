@@ -1,0 +1,124 @@
+{
+  "name": "elastiflow_codex_avail_tcp_sess_fails_in",
+  "description": "Failed TCP Sessions - inbound",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "l4.proto.name": "TCP"
+          }
+        },
+        {
+          "term": {
+            "l4.session.established": "false"
+          }
+        },
+        {
+          "terms": {
+            "flow.export.type": [
+              "netflow",
+              "ipfix"
+            ]
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.client.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.server.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.server.l4.port.name"
+          }
+        },
+        {
+          "term": {
+            "flow.server.as.org": "PRIVATE"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "term": {
+            "flow.client.as.org": "PRIVATE"
+          }
+        },
+        {
+          "terms": {
+            "flow.client.ip.addr": [
+              "169.254.0.0/16",
+              "fe80::/10"
+            ]
+          }
+        },
+        {
+          "terms": {
+            "flow.server.ip.addr": []
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 2,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_server_l4_port_name",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_server_l4_port_name": {
+          "value_count": {
+            "field": "flow.server.l4.port.name"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_server_l4_port_name": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "flow.server.l4.port.name",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"term\":{\"l4.proto.name\":\"TCP\"}},{\"term\":{\"l4.session.established\":\"false\"}},{\"terms\":{\"flow.export.type\":[\"netflow\",\"ipfix\"]}},{\"exists\":{\"field\":\"flow.client.ip.addr\"}},{\"exists\":{\"field\":\"flow.server.ip.addr\"}},{\"exists\":{\"field\":\"flow.server.l4.port.name\"}},{\"term\":{\"flow.server.as.org\":\"PRIVATE\"}}],\"must_not\":[{\"term\":{\"flow.client.as.org\":\"PRIVATE\"}},{\"terms\":{\"flow.client.ip.addr\":[\"169.254.0.0/16\",\"fe80::/10\"]}},{\"terms\":{\"flow.server.ip.addr\":[]}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.server.l4.port.name",
+    "flow.server.ip.addr"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_avail_tcp_sess_fails_in",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 15,
+      "unit": "Minutes"
+    }
+  }
+}

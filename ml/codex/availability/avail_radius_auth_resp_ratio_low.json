@@ -1,0 +1,108 @@
+{
+  "name": "elastiflow_codex_avail_radius_auth_resp_ratio_low",
+  "description": "Low RADIUS AUTH Request/Response Ratio",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must_not": [
+        {
+          "terms": {
+            "flow.client.ip.addr": []
+          }
+        },
+        {
+          "terms": {
+            "flow.server.ip.addr": []
+          }
+        }
+      ],
+      "must": [
+        {
+          "terms": {
+            "flow.export.type": [
+              "netflow",
+              "ipfix"
+            ]
+          }
+        },
+        {
+          "term": {
+            "l4.proto.name": "udp"
+          }
+        },
+        {
+          "terms": {
+            "flow.server.l4.port.id": [
+              1645,
+              1812
+            ]
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.client.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.server.ip.addr"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "sum_ratio",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "sum_ratio": {
+          "sum": {
+            "field": "ratio"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "sum_ratio": {
+        "aggregationBy": "sum",
+        "aggregationOf": "ratio",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must_not\":[{\"terms\":{\"flow.client.ip.addr\":[]}},{\"terms\":{\"flow.server.ip.addr\":[]}}],\"must\":[{\"terms\":{\"flow.export.type\":[\"netflow\",\"ipfix\"]}},{\"term\":{\"l4.proto.name\":\"udp\"}},{\"terms\":{\"flow.server.l4.port.id\":[1645,1812]}},{\"exists\":{\"field\":\"flow.client.ip.addr\"}},{\"exists\":{\"field\":\"flow.server.ip.addr\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.server.ip.addr"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_avail_radius_auth_resp_ratio_low",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 20,
+      "unit": "Minutes"
+    }
+  }
+}

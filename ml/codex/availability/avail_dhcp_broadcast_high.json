@@ -1,0 +1,90 @@
+{
+  "name": "elastiflow_codex_avail_dhcp_broadcast_high",
+  "description": "High DHCP Broadcast Messages",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "l4.proto.name": "UDP"
+          }
+        },
+        {
+          "term": {
+            "flow.src.l4.port.id": 68
+          }
+        },
+        {
+          "term": {
+            "flow.dst.l4.port.id": 67
+          }
+        },
+        {
+          "term": {
+            "flow.dst.ip.addr": "255.255.255.255"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.export.host.name"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 2,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "sum_flow_packets",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "sum_flow_packets": {
+          "sum": {
+            "field": "flow.packets"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "sum_flow_packets": {
+        "aggregationBy": "sum",
+        "aggregationOf": "flow.packets",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"term\":{\"l4.proto.name\":\"UDP\"}},{\"term\":{\"flow.src.l4.port.id\":68}},{\"term\":{\"flow.dst.l4.port.id\":67}},{\"term\":{\"flow.dst.ip.addr\":\"255.255.255.255\"}},{\"exists\":{\"field\":\"flow.export.host.name\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.export.host.name"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_avail_dhcp_broadcast_high",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 20,
+      "unit": "Minutes"
+    }
+  }
+}

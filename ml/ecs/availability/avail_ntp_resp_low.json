@@ -1,0 +1,108 @@
+{
+  "name": "elastiflow_ecs_avail_ntp_resp_low",
+  "description": "Low NTP Responses",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-ecs-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "network.transport": "UDP"
+          }
+        },
+        {
+          "term": {
+            "source.port": 123
+          }
+        },
+        {
+          "exists": {
+            "field": "host.name"
+          }
+        },
+        {
+          "exists": {
+            "field": "client.ip"
+          }
+        },
+        {
+          "exists": {
+            "field": "server.ip"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "term": {
+            "destination.port": 123
+          }
+        },
+        {
+          "terms": {
+            "client.ip": []
+          }
+        },
+        {
+          "terms": {
+            "server.ip": []
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 2,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_server_ip_addr",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_server_ip_addr": {
+          "value_count": {
+            "field": "server.ip"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_server_ip_addr": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "server.ip",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"term\":{\"network.transport\":\"UDP\"}},{\"term\":{\"source.port\":123}},{\"exists\":{\"field\":\"host.name\"}},{\"exists\":{\"field\":\"client.ip\"}},{\"exists\":{\"field\":\"server.ip\"}}],\"must_not\":[{\"term\":{\"destination.port\":123}},{\"terms\":{\"client.ip\":[]}},{\"terms\":{\"server.ip\":[]}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "host.name",
+    "client.ip"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_ecs_avail_ntp_resp_low",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 20,
+      "unit": "Minutes"
+    }
+  }
+}

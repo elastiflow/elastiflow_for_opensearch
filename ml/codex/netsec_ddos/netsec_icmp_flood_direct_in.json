@@ -1,0 +1,111 @@
+{
+  "name": "elastiflow_codex_netsec_icmp_flood_direct_in",
+  "description": "ICMP Flood Direct Attack - inbound",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "l4.proto.name": "ICMP"
+          }
+        },
+        {
+          "terms": {
+            "flow.export.type": [
+              "netflow",
+              "ipfix"
+            ]
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.src.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.dst.ip.addr"
+          }
+        },
+        {
+          "term": {
+            "flow.dst.as.org": "PRIVATE"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "term": {
+            "flow.src.as.org": "PRIVATE"
+          }
+        },
+        {
+          "terms": {
+            "flow.src.ip.addr": []
+          }
+        },
+        {
+          "terms": {
+            "flow.dst.ip.addr": []
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 2,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "sum_flow_packets",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "sum_flow_packets": {
+          "sum": {
+            "field": "flow.packets"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "sum_flow_packets": {
+        "aggregationBy": "sum",
+        "aggregationOf": "flow.packets",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"term\":{\"l4.proto.name\":\"ICMP\"}},{\"terms\":{\"flow.export.type\":[\"netflow\",\"ipfix\"]}},{\"exists\":{\"field\":\"flow.src.ip.addr\"}},{\"exists\":{\"field\":\"flow.dst.ip.addr\"}},{\"term\":{\"flow.dst.as.org\":\"PRIVATE\"}}],\"must_not\":[{\"term\":{\"flow.src.as.org\":\"PRIVATE\"}},{\"terms\":{\"flow.src.ip.addr\":[]}},{\"terms\":{\"flow.dst.ip.addr\":[]}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.src.ip.addr",
+    "flow.src.host.name"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_netsec_icmp_flood_direct_in",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 5,
+      "unit": "Minutes"
+    }
+  }
+}

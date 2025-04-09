@@ -1,0 +1,134 @@
+{
+  "name": "elastiflow_ecs_netsec_bruteforce_direct_desktop_out_slow",
+  "description": "Brute Force Direct Remote Desktop Access - outbound (slow)",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-ecs-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "bool": {
+            "should": [
+              {
+                "terms": {
+                  "server.port": [
+                    1494,
+                    3389
+                  ]
+                }
+              },
+              {
+                "range": {
+                  "server.port": {
+                    "lte": "5904",
+                    "gte": "5900"
+                  }
+                }
+              },
+              {
+                "range": {
+                  "server.port": {
+                    "gte": "6000",
+                    "lte": "6063"
+                  }
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        },
+        {
+          "exists": {
+            "field": "client.ip"
+          }
+        },
+        {
+          "exists": {
+            "field": "client.port"
+          }
+        },
+        {
+          "exists": {
+            "field": "server.ip"
+          }
+        },
+        {
+          "term": {
+            "client.as.organization": "PRIVATE"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "term": {
+            "server.as.organization": "PRIVATE"
+          }
+        },
+        {
+          "terms": {
+            "client.ip": []
+          }
+        },
+        {
+          "terms": {
+            "server.ip": []
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 2,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_client_l4_port_id",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_client_l4_port_id": {
+          "value_count": {
+            "field": "client.port"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_client_l4_port_id": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "client.port",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"bool\":{\"should\":[{\"terms\":{\"server.port\":[1494,3389]}},{\"range\":{\"server.port\":{\"lte\":\"5904\",\"gte\":\"5900\"}}},{\"range\":{\"server.port\":{\"gte\":\"6000\",\"lte\":\"6063\"}}}],\"minimum_should_match\":1}},{\"exists\":{\"field\":\"client.ip\"}},{\"exists\":{\"field\":\"client.port\"}},{\"exists\":{\"field\":\"server.ip\"}},{\"term\":{\"client.as.organization\":\"PRIVATE\"}}],\"must_not\":[{\"term\":{\"server.as.organization\":\"PRIVATE\"}},{\"terms\":{\"client.ip\":[]}},{\"terms\":{\"server.ip\":[]}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.server.l4.port.name",
+    "server.ip"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_ecs_netsec_bruteforce_direct_desktop_out_slow",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 240,
+      "unit": "Minutes"
+    }
+  }
+}

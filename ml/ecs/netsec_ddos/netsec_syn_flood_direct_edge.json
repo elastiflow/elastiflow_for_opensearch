@@ -1,0 +1,116 @@
+{
+  "name": "elastiflow_ecs_netsec_syn_flood_direct_edge",
+  "description": "SYN Flood Direct Attack - edge",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-ecs-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must_not": [
+        {
+          "term": {
+            "client.as.organization": "PRIVATE"
+          }
+        },
+        {
+          "term": {
+            "server.as.organization": "PRIVATE"
+          }
+        },
+        {
+          "terms": {
+            "client.ip": []
+          }
+        },
+        {
+          "terms": {
+            "server.ip": []
+          }
+        }
+      ],
+      "must": [
+        {
+          "term": {
+            "tcp.flags.bits": 2
+          }
+        },
+        {
+          "terms": {
+            "event.dataset": [
+              "netflow",
+              "ipfix"
+            ]
+          }
+        },
+        {
+          "exists": {
+            "field": "client.ip"
+          }
+        },
+        {
+          "exists": {
+            "field": "server.ip"
+          }
+        },
+        {
+          "exists": {
+            "field": "server.port"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "sum_flow_packets",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "sum_flow_packets": {
+          "sum": {
+            "field": "network.packets"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "sum_flow_packets": {
+        "aggregationBy": "sum",
+        "aggregationOf": "network.packets",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must_not\":[{\"term\":{\"client.as.organization\":\"PRIVATE\"}},{\"term\":{\"server.as.organization\":\"PRIVATE\"}},{\"terms\":{\"client.ip\":[]}},{\"terms\":{\"server.ip\":[]}}],\"must\":[{\"term\":{\"tcp.flags.bits\":2}},{\"terms\":{\"event.dataset\":[\"netflow\",\"ipfix\"]}},{\"exists\":{\"field\":\"client.ip\"}},{\"exists\":{\"field\":\"server.ip\"}},{\"exists\":{\"field\":\"server.port\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "client.ip",
+    "client.domain"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_ecs_netsec_syn_flood_direct_edge",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 5,
+      "unit": "Minutes"
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "name": "elastiflow_ecs_netsec_port_scan_direct_priv_fast",
+  "description": "Port Scan Direct - private (fast)",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-ecs-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must_not": [
+        {
+          "terms": {
+            "client.ip": []
+          }
+        },
+        {
+          "terms": {
+            "server.ip": [
+              "255.255.255.255"
+            ]
+          }
+        }
+      ],
+      "must": [
+        {
+          "exists": {
+            "field": "client.ip"
+          }
+        },
+        {
+          "exists": {
+            "field": "server.ip"
+          }
+        },
+        {
+          "exists": {
+            "field": "server.port"
+          }
+        },
+        {
+          "term": {
+            "flow.locality": "private"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_server_l4_port_id",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_server_l4_port_id": {
+          "value_count": {
+            "field": "server.port"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_server_l4_port_id": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "server.port",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must_not\":[{\"terms\":{\"client.ip\":[]}},{\"terms\":{\"server.ip\":[\"255.255.255.255\"]}}],\"must\":[{\"exists\":{\"field\":\"client.ip\"}},{\"exists\":{\"field\":\"server.ip\"}},{\"exists\":{\"field\":\"server.port\"}},{\"term\":{\"flow.locality\":\"private\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "client.ip",
+    "client.domain"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_ecs_netsec_port_scan_direct_priv_fast",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 10,
+      "unit": "Minutes"
+    }
+  }
+}

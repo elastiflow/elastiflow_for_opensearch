@@ -1,0 +1,105 @@
+{
+  "name": "elastiflow_ecs_avail_dns_resp_ratio_low",
+  "description": "Low DNS Request/Response Ratio",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-ecs-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "terms": {
+            "event.dataset": [
+              "netflow",
+              "ipfix"
+            ]
+          }
+        },
+        {
+          "term": {
+            "network.transport": "UDP"
+          }
+        },
+        {
+          "term": {
+            "server.port": 53
+          }
+        },
+        {
+          "exists": {
+            "field": "client.ip"
+          }
+        },
+        {
+          "exists": {
+            "field": "server.ip"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "terms": {
+            "client.ip": []
+          }
+        },
+        {
+          "terms": {
+            "server.ip": []
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "sum_ratio",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "sum_ratio": {
+          "sum": {
+            "field": "ratio"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "sum_ratio": {
+        "aggregationBy": "sum",
+        "aggregationOf": "ratio",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"terms\":{\"event.dataset\":[\"netflow\",\"ipfix\"]}},{\"term\":{\"network.transport\":\"UDP\"}},{\"term\":{\"server.port\":53}},{\"exists\":{\"field\":\"client.ip\"}},{\"exists\":{\"field\":\"server.ip\"}}],\"must_not\":[{\"terms\":{\"client.ip\":[]}},{\"terms\":{\"server.ip\":[]}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "server.ip"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_ecs_avail_dns_resp_ratio_low",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 20,
+      "unit": "Minutes"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "name": "elastiflow_codex_perf_netif_egress_thruput_flows",
+  "description": "Unusual Egress Traffic Volume",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "exists": {
+            "field": "flow.out.netif.name"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.export.host.name"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_out_netif_name",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_out_netif_name": {
+          "value_count": {
+            "field": "flow.out.netif.name"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_out_netif_name": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "flow.out.netif.name",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"exists\":{\"field\":\"flow.out.netif.name\"}},{\"exists\":{\"field\":\"flow.export.host.name\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.export.host.name",
+    "flow.out.netif.name"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_perf_netif_egress_thruput_flows",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 15,
+      "unit": "Minutes"
+    }
+  }
+}

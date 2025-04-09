@@ -1,0 +1,71 @@
+{
+  "name": "elastiflow_codex_perf_asn_dst_thruput_flows",
+  "description": "Unusual Destination ASN Traffic Volume",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "exists": {
+            "field": "flow.dst.as.label"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_": {
+          "value_count": {
+            "field": ""
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"exists\":{\"field\":\"flow.dst.as.label\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.dst.as.label",
+    "flow.src.ip.addr"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_perf_asn_dst_thruput_flows",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 15,
+      "unit": "Minutes"
+    }
+  }
+}

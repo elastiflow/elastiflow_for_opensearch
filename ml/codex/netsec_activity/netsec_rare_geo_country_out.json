@@ -1,0 +1,98 @@
+{
+  "name": "elastiflow_codex_netsec_rare_geo_country_out",
+  "description": "Rare Country - outbound",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "exists": {
+            "field": "flow.server.geo.country.name"
+          }
+        },
+        {
+          "term": {
+            "l4.session.established": "true"
+          }
+        },
+        {
+          "term": {
+            "flow.client.as.org": "PRIVATE"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "term": {
+            "flow.server.as.org": "PRIVATE"
+          }
+        },
+        {
+          "terms": {
+            "flow.client.ip.addr": []
+          }
+        },
+        {
+          "terms": {
+            "flow.server.ip.addr": []
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 2,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_server_geo_country_name",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_server_geo_country_name": {
+          "value_count": {
+            "field": "flow.server.geo.country.name"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_server_geo_country_name": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "flow.server.geo.country.name",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"exists\":{\"field\":\"flow.server.geo.country.name\"}},{\"term\":{\"l4.session.established\":\"true\"}},{\"term\":{\"flow.client.as.org\":\"PRIVATE\"}}],\"must_not\":[{\"term\":{\"flow.server.as.org\":\"PRIVATE\"}},{\"terms\":{\"flow.client.ip.addr\":[]}},{\"terms\":{\"flow.server.ip.addr\":[]}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.server.geo.country.name",
+    "flow.server.l4.port.name"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_netsec_rare_geo_country_out",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 30,
+      "unit": "Minutes"
+    }
+  }
+}

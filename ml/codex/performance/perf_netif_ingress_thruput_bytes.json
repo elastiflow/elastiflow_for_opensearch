@@ -1,0 +1,76 @@
+{
+  "name": "elastiflow_codex_perf_netif_ingress_thruput_bytes",
+  "description": "Unusual Ingress Traffic Volume",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "exists": {
+            "field": "flow.in.netif.name"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.export.host.name"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "sum_flow_bytes",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "sum_flow_bytes": {
+          "sum": {
+            "field": "flow.bytes"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "sum_flow_bytes": {
+        "aggregationBy": "sum",
+        "aggregationOf": "flow.bytes",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"exists\":{\"field\":\"flow.in.netif.name\"}},{\"exists\":{\"field\":\"flow.export.host.name\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.export.host.name",
+    "flow.in.netif.name"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_perf_netif_ingress_thruput_bytes",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 15,
+      "unit": "Minutes"
+    }
+  }
+}

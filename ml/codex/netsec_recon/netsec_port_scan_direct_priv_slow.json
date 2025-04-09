@@ -1,0 +1,100 @@
+{
+  "name": "elastiflow_codex_netsec_port_scan_direct_priv_slow",
+  "description": "Port Scan Direct - private (slow)",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must_not": [
+        {
+          "terms": {
+            "flow.client.ip.addr": []
+          }
+        },
+        {
+          "terms": {
+            "flow.server.ip.addr": [
+              "255.255.255.255"
+            ]
+          }
+        }
+      ],
+      "must": [
+        {
+          "exists": {
+            "field": "flow.client.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.server.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.server.l4.port.id"
+          }
+        },
+        {
+          "term": {
+            "flow.locality": "private"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_server_l4_port_id",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_server_l4_port_id": {
+          "value_count": {
+            "field": "flow.server.l4.port.id"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_server_l4_port_id": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "flow.server.l4.port.id",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must_not\":[{\"terms\":{\"flow.client.ip.addr\":[]}},{\"terms\":{\"flow.server.ip.addr\":[\"255.255.255.255\"]}}],\"must\":[{\"exists\":{\"field\":\"flow.client.ip.addr\"}},{\"exists\":{\"field\":\"flow.server.ip.addr\"}},{\"exists\":{\"field\":\"flow.server.l4.port.id\"}},{\"term\":{\"flow.locality\":\"private\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.client.ip.addr",
+    "flow.client.host.name"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_netsec_port_scan_direct_priv_slow",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 240,
+      "unit": "Minutes"
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "name": "elastiflow_codex_netsec_icmp_flood_ddos_edge",
+  "description": "ICMP Flood DDoS Attack - edge",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "l4.proto.name": "ICMP"
+          }
+        },
+        {
+          "terms": {
+            "flow.export.type": [
+              "netflow",
+              "ipfix"
+            ]
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.src.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.dst.ip.addr"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "term": {
+            "flow.src.as.org": "PRIVATE"
+          }
+        },
+        {
+          "term": {
+            "flow.dst.as.org": "PRIVATE"
+          }
+        },
+        {
+          "terms": {
+            "flow.src.ip.addr": []
+          }
+        },
+        {
+          "terms": {
+            "flow.dst.ip.addr": []
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_src_ip_addr",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_src_ip_addr": {
+          "value_count": {
+            "field": "flow.src.ip.addr"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_src_ip_addr": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "flow.src.ip.addr",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"term\":{\"l4.proto.name\":\"ICMP\"}},{\"terms\":{\"flow.export.type\":[\"netflow\",\"ipfix\"]}},{\"exists\":{\"field\":\"flow.src.ip.addr\"}},{\"exists\":{\"field\":\"flow.dst.ip.addr\"}}],\"must_not\":[{\"term\":{\"flow.src.as.org\":\"PRIVATE\"}},{\"term\":{\"flow.dst.as.org\":\"PRIVATE\"}},{\"terms\":{\"flow.src.ip.addr\":[]}},{\"terms\":{\"flow.dst.ip.addr\":[]}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.dst.ip.addr",
+    "flow.dst.host.name"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_netsec_icmp_flood_ddos_edge",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 5,
+      "unit": "Minutes"
+    }
+  }
+}

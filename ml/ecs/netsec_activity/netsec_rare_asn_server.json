@@ -1,0 +1,76 @@
+{
+  "name": "elastiflow_ecs_netsec_rare_asn_server",
+  "description": "Rare Server-Side Autonomous System",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-ecs-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must": [
+        {
+          "exists": {
+            "field": "flow.server.as.label"
+          }
+        },
+        {
+          "term": {
+            "l4.session.established": "true"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_server_as_label",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_server_as_label": {
+          "value_count": {
+            "field": "flow.server.as.label"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_server_as_label": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "flow.server.as.label",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must\":[{\"exists\":{\"field\":\"flow.server.as.label\"}},{\"term\":{\"l4.session.established\":\"true\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.server.as.label",
+    "flow.server.l4.port.name"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_ecs_netsec_rare_asn_server",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 30,
+      "unit": "Minutes"
+    }
+  }
+}

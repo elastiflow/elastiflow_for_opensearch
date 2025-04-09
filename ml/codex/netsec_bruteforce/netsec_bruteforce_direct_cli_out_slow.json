@@ -1,0 +1,111 @@
+{
+  "name": "elastiflow_codex_netsec_bruteforce_direct_cli_out_slow",
+  "description": "Brute Force Direct CLI Access - outbound (slow)",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must_not": [
+        {
+          "term": {
+            "flow.server.as.org": "PRIVATE"
+          }
+        },
+        {
+          "terms": {
+            "flow.client.ip.addr": []
+          }
+        },
+        {
+          "terms": {
+            "flow.server.ip.addr": []
+          }
+        }
+      ],
+      "must": [
+        {
+          "terms": {
+            "flow.server.l4.port.id": [
+              22,
+              23
+            ]
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.client.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.client.l4.port.id"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.server.ip.addr"
+          }
+        },
+        {
+          "term": {
+            "flow.client.as.org": "PRIVATE"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 2,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_client_l4_port_id",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_client_l4_port_id": {
+          "value_count": {
+            "field": "flow.client.l4.port.id"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_client_l4_port_id": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "flow.client.l4.port.id",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must_not\":[{\"term\":{\"flow.server.as.org\":\"PRIVATE\"}},{\"terms\":{\"flow.client.ip.addr\":[]}},{\"terms\":{\"flow.server.ip.addr\":[]}}],\"must\":[{\"terms\":{\"flow.server.l4.port.id\":[22,23]}},{\"exists\":{\"field\":\"flow.client.ip.addr\"}},{\"exists\":{\"field\":\"flow.client.l4.port.id\"}},{\"exists\":{\"field\":\"flow.server.ip.addr\"}},{\"term\":{\"flow.client.as.org\":\"PRIVATE\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.server.l4.port.name",
+    "flow.server.ip.addr"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_netsec_bruteforce_direct_cli_out_slow",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 240,
+      "unit": "Minutes"
+    }
+  }
+}

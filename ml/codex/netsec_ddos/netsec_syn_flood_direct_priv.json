@@ -1,0 +1,111 @@
+{
+  "name": "elastiflow_codex_netsec_syn_flood_direct_priv",
+  "description": "SYN Flood Direct Attack - private",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must_not": [
+        {
+          "terms": {
+            "flow.client.ip.addr": []
+          }
+        },
+        {
+          "terms": {
+            "flow.server.ip.addr": []
+          }
+        }
+      ],
+      "must": [
+        {
+          "term": {
+            "tcp.flags.bits": 2
+          }
+        },
+        {
+          "terms": {
+            "flow.export.type": [
+              "netflow",
+              "ipfix"
+            ]
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.client.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.server.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.server.l4.port.id"
+          }
+        },
+        {
+          "term": {
+            "flow.locality": "private"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 2,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "sum_flow_packets",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "sum_flow_packets": {
+          "sum": {
+            "field": "flow.packets"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "sum_flow_packets": {
+        "aggregationBy": "sum",
+        "aggregationOf": "flow.packets",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must_not\":[{\"terms\":{\"flow.client.ip.addr\":[]}},{\"terms\":{\"flow.server.ip.addr\":[]}}],\"must\":[{\"term\":{\"tcp.flags.bits\":2}},{\"terms\":{\"flow.export.type\":[\"netflow\",\"ipfix\"]}},{\"exists\":{\"field\":\"flow.client.ip.addr\"}},{\"exists\":{\"field\":\"flow.server.ip.addr\"}},{\"exists\":{\"field\":\"flow.server.l4.port.id\"}},{\"term\":{\"flow.locality\":\"private\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.client.ip.addr",
+    "flow.client.host.name"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_netsec_syn_flood_direct_priv",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 5,
+      "unit": "Minutes"
+    }
+  }
+}

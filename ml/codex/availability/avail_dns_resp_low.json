@@ -1,0 +1,103 @@
+{
+  "name": "elastiflow_codex_avail_dns_resp_low",
+  "description": "Low DNS Responses",
+  "time_field": "@timestamp",
+  "shingle_size": 8,
+  "indices": [
+    "elastiflow-flow-codex-*"
+  ],
+  "filter_query": {
+    "bool": {
+      "must_not": [
+        {
+          "terms": {
+            "flow.client.ip.addr": []
+          }
+        },
+        {
+          "terms": {
+            "flow.server.ip.addr": []
+          }
+        }
+      ],
+      "must": [
+        {
+          "term": {
+            "l4.proto.name": "UDP"
+          }
+        },
+        {
+          "term": {
+            "flow.src.l4.port.id": 53
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.export.host.name"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.client.ip.addr"
+          }
+        },
+        {
+          "exists": {
+            "field": "flow.server.ip.addr"
+          }
+        }
+      ]
+    }
+  },
+  "window_delay": {
+    "period": {
+      "interval": 1,
+      "unit": "Minutes"
+    }
+  },
+  "feature_attributes": [
+    {
+      "feature_name": "count_flow_server_ip_addr",
+      "feature_enabled": true,
+      "aggregation_query": {
+        "count_flow_server_ip_addr": {
+          "value_count": {
+            "field": "flow.server.ip.addr"
+          }
+        }
+      }
+    }
+  ],
+  "ui_metadata": {
+    "features": {
+      "count_flow_server_ip_addr": {
+        "aggregationBy": "value_count",
+        "aggregationOf": "flow.server.ip.addr",
+        "featureType": "simple_aggs"
+      }
+    },
+    "filters": [
+      {
+        "query": "{\"bool\":{\"must_not\":[{\"terms\":{\"flow.client.ip.addr\":[]}},{\"terms\":{\"flow.server.ip.addr\":[]}}],\"must\":[{\"term\":{\"l4.proto.name\":\"UDP\"}},{\"term\":{\"flow.src.l4.port.id\":53}},{\"exists\":{\"field\":\"flow.export.host.name\"}},{\"exists\":{\"field\":\"flow.client.ip.addr\"}},{\"exists\":{\"field\":\"flow.server.ip.addr\"}}]}}",
+        "label": "",
+        "filterType": "custom_filter",
+        "fieldInfo": [],
+        "fieldValue": "",
+        "operator": "is"
+      }
+    ]
+  },
+  "category_field": [
+    "flow.export.host.name",
+    "flow.client.ip.addr"
+  ],
+  "result_index": "opensearch-ad-plugin-result-elastiflow_codex_avail_dns_resp_low",
+  "result_index_min_size": "7",
+  "result_index_ttl": "60",
+  "detection_interval": {
+    "period": {
+      "interval": 20,
+      "unit": "Minutes"
+    }
+  }
+}
